@@ -119,11 +119,11 @@ export default function Settings() {
               Selected: <span className="font-semibold">{selected.size}</span>
             </div>
 
-            <Button onClick={onSave} disabled={updateCategory.isPending || !params.id}>
+            <Button variant="default" size="sm" onClick={onSave} disabled={updateCategory.isPending || !params.id}>
               {updateCategory.isPending ? 'Saving…' : 'Save'}
             </Button>
 
-            <Button variant="outline" onClick={() => setSelected(new Set())} disabled={selected.size === 0 || updateCategory.isPending}>
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())} disabled={selected.size === 0 || updateCategory.isPending}>
               Clear
             </Button>
           </div>
