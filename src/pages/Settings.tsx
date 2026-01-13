@@ -111,7 +111,7 @@ export default function Settings() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold text-zinc-900">Plan Comm Templates</h2>
-            <div className="text-sm text-zinc-600">Select templates below. Current selection is shown as a CSV string.</div>
+            <div className="text-sm text-zinc-600">Select from templates below.</div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-zinc-200 bg-white p-4">
+        {/* <div className="rounded-lg border border-zinc-200 bg-white p-4">
           <div className="mb-2 text-sm font-medium text-zinc-900">Original value</div>
           <textarea
             className="h-20 w-full resize-none rounded-md border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs text-zinc-800 outline-none focus:ring-1 focus:ring-zinc-300"
@@ -137,10 +137,10 @@ export default function Settings() {
             readOnly
             placeholder="(none)"
           />
-        </div>
+        </div> */}
 
         {/* CSV Preview */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-4">
+        {/* <div className="rounded-lg border border-zinc-200 bg-white p-4">
           <div className="mb-2 text-sm font-medium text-zinc-900">Current selection</div>
           <textarea
             className="h-20 w-full resize-none rounded-md border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs text-zinc-800 outline-none focus:ring-1 focus:ring-zinc-300"
@@ -148,7 +148,7 @@ export default function Settings() {
             readOnly
             placeholder="(none)"
           />
-        </div>
+        </div> */}
 
         {/* Search + list */}
         <div className="rounded-lg border border-zinc-200 bg-white">
@@ -165,7 +165,7 @@ export default function Settings() {
           </div>
 
           <div className="max-h-[60vh] overflow-auto p-2">
-            {filtered.map((template) => {
+            {filtered?.map((template) => {
               const id = String(template.id);
               const label = (template.name ?? template.title ?? `Template ${id}`) as string;
               const checked = selected.has(id);
