@@ -18,7 +18,9 @@ export function DataTable<T>({ data, columns, emptyText = 'No results.' }: Props
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id}>
               {hg.headers.map((h) => (
-                <TableHead key={h.id}>{h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}</TableHead>
+                <TableHead key={h.id} className="font-semibold text-[#1B2327] text-sm border border-[#CFD8DC]">
+                  {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+                </TableHead>
               ))}
             </TableRow>
           ))}

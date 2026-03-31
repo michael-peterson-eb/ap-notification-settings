@@ -20,7 +20,7 @@ export function SettingsModal({ open, loading, form, onOpenChange, onFieldChange
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Everbridge Settings</DialogTitle>
-          <DialogDescription>Credentials are stored in settings and used before the templates table loads.</DialogDescription>
+          <DialogDescription>Store credentials to use use Everbridge Communications and assign templates to plan types.</DialogDescription>
         </DialogHeader>
 
         <form
@@ -68,7 +68,7 @@ export function SettingsModal({ open, loading, form, onOpenChange, onFieldChange
               Cancel
             </Button>
 
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="!bg-primary text-white">
               {loading ? 'Saving...' : 'Save Settings'}
             </Button>
           </div>
