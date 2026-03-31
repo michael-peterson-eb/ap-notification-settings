@@ -69,9 +69,14 @@ async function fetchEverbridgeToken() {
   return json;
 }
 
-export function useEverbridgeToken() {
+type UseEverbridgeTokenOptions = {
+  enabled?: boolean;
+};
+
+export function useEverbridgeToken(options?: UseEverbridgeTokenOptions) {
   return useQuery({
     queryKey: ['everbridgeToken'],
+    enabled: options?.enabled ?? true,
     queryFn: fetchEverbridgeToken,
     staleTime: 55 * 60 * 1000,
     gcTime: 2 * 60 * 60 * 1000,
