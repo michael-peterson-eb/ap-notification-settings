@@ -14,6 +14,9 @@ export function usePlanTemplateCategory({ planType, enabled = true, isDev = fals
     queryKey: ['planTemplateCategory', planType],
     enabled: queryEnabled,
     retry: 0,
+    // Keep row-level template assignments cached until we explicitly invalidate
+    // them after a save/remove mutation.
+    staleTime: Infinity,
     queryFn: async () => {
       // @ts-expect-error - global _RB
       const rows = await _RB.selectQuery(['bcicTemplateCategory'], 'EA_SA_PlanType', `id = ${planType}`, 1, true);
