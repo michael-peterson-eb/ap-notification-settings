@@ -75,7 +75,6 @@ export function AssignTemplatesDialog({ open, title, description, templates, ini
 
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                     <div className="truncate text-sm font-medium text-zinc-900">{getTemplateLabel(template)}</div>
-                    <div className="shrink-0 rounded bg-zinc-100 px-2 py-0.5 font-mono text-[11px] text-zinc-700">{id}</div>
                   </div>
                 </div>
               );

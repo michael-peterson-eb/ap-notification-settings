@@ -33,12 +33,17 @@ type UpdatePlanTemplatesArgs = {
   toastOnSuccess?: boolean;
 };
 
+const SETTINGS_TABS = [{ id: 'eb360-communications', label: 'EB360 Communications' }] as const;
+
+type SettingsTabId = (typeof SETTINGS_TABS)[number]['id'];
+
 export default function Settings() {
   const isDev = process.env.NODE_ENV === 'development';
 
   const { pushToast } = useToasts();
   const queryClient = useQueryClient();
 
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(SETTINGS_TABS[0].id);
   const [loading, setLoading] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [form, setForm] = useState<FormState>({
@@ -480,7 +485,33 @@ export default function Settings() {
   return (
     <div className="h-full w-full">
       <div className="flex flex-col gap-6 pt-6">
-        <div className="rounded-lg border border-zinc-200 bg-white p-4">
+        <div className="border-b border-[#CFD8DC]">
+          <div role="tablist" aria-label="Notification settings integrations" className="flex items-end gap-8">
+            {SETTINGS_TABS.map((tab) => {
+              const isActive = tab.id === activeTab;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  id={`settings-tab-${tab.id}`}
+                  aria-selected={isActive}
+                  aria-controls={`settings-panel-${tab.id}`}
+                  tabIndex={isActive ? 0 : -1}
+                  className={[
+                    'relative -mb-px border-b-2 px-1 pb-2 text-sm font-bold transition-colors',
+                    isActive ? '!border-primary !text-primary' : 'border-transparent text-zinc-500 hover:text-zinc-800',
+                  ].join(' ')}
+                  onClick={() => setActiveTab(tab.id)}>
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div role="tabpanel" id={`settings-panel-${activeTab}`} aria-labelledby={`settings-tab-${activeTab}`} className="rounded-lg border border-zinc-200 bg-white p-4">
           <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold text-zinc-900">Plan Types and Templates</h2>
