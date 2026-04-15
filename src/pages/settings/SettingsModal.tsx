@@ -20,7 +20,7 @@ export function SettingsModal({ open, loading, form, onOpenChange, onFieldChange
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Everbridge Settings</DialogTitle>
-          <DialogDescription>Store credentials to use use Everbridge Communications and assign templates to plan types.</DialogDescription>
+          <DialogDescription>Store credentials to use Everbridge Communications and assign templates to plan types.</DialogDescription>
         </DialogHeader>
 
         <form
