@@ -3,6 +3,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
 
 import { cn } from '../../lib/utils';
+import { getPortalContainer } from '../../domScope';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -10,7 +11,10 @@ const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
 const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
+const DropdownMenuPortal = ({ container, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) => (
+  <DropdownMenuPrimitive.Portal container={container ?? getPortalContainer()} {...props} />
+);
+DropdownMenuPortal.displayName = DropdownMenuPrimitive.Portal.displayName;
 
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
@@ -52,7 +56,7 @@ DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayNam
 
 const DropdownMenuContent = React.forwardRef<React.ElementRef<typeof DropdownMenuPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>>(
   ({ className, sideOffset = 4, ...props }, ref) => (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPortal>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
@@ -63,7 +67,7 @@ const DropdownMenuContent = React.forwardRef<React.ElementRef<typeof DropdownMen
         )}
         {...props}
       />
-    </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPortal>
   )
 );
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;

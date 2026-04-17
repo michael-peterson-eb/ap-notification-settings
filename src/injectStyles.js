@@ -1,6 +1,6 @@
 import cssModule from './tailwind.out.css';
 
-export function injectStyles() {
+export function injectStyles(target = document.head) {
   const cssText = typeof cssModule === 'string' ? cssModule : (cssModule?.default ?? '');
 
   if (!cssText || typeof cssText !== 'string') {
@@ -11,5 +11,5 @@ export function injectStyles() {
   const style = document.createElement('style');
   style.setAttribute('data-app-styles', 'true');
   style.textContent = cssText;
-  document.head.appendChild(style);
+  target.appendChild(style);
 }

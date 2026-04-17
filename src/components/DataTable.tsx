@@ -17,8 +17,13 @@ export function DataTable<T>({ data, columns, emptyText = 'No results.' }: Props
         <TableHeader>
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id}>
-              {hg.headers.map((h) => (
-                <TableHead key={h.id} className="font-semibold text-[#1B2327] text-sm border border-[#CFD8DC]">
+              {hg.headers.map((h, index) => (
+                <TableHead
+                  key={h.id}
+                  className={[
+                    'font-semibold text-[#1B2327] text-sm border-b border-[#CFD8DC]',
+                    index > 0 ? 'border-l border-[#CFD8DC]' : '',
+                  ].join(' ')}>
                   {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                 </TableHead>
               ))}
