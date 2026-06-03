@@ -1,27 +1,101 @@
 import type { CommTemplate, PlanType } from './types';
 
-export function updatePlanTypeTemplateCategory(planTypeId: number, csv: string) {
+export const PLAN_TYPE_OBJECT = 'EA_SA_PlanType';
+export const PLAN_TYPE_TEMPLATE_CATEGORY_FIELD = 'bcicTemplateCategory';
+export const PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD = 'EA_SA_ddlTaskListBehavior';
+
+const DEFAULT_TASK_LIST_BEHAVIOR_CODE = 'EA_SA_Automatic';
+
+type PicklistOption = {
+  id?: string | number;
+  code?: string | number;
+};
+
+let defaultTaskListBehaviorIdPromise: Promise<string | number> | null = null;
+
+function isBlankValue(value: unknown) {
+  return value === null || value === undefined || String(value).trim() === '';
+}
+
+export function getAttachAutomaticallyTaskListBehaviorId() {
+  if (!defaultTaskListBehaviorIdPromise) {
+    defaultTaskListBehaviorIdPromise = new Promise<string | number>((resolve, reject) => {
+      const resolveFromPicklist = (options: PicklistOption[]) => {
+        const option = options.find((item) => String(item.code ?? '').trim() === DEFAULT_TASK_LIST_BEHAVIOR_CODE);
+        const id = option?.id;
+
+        if (isBlankValue(id)) {
+          reject(new Error(`Unable to find picklist option id for ${PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD} code "${DEFAULT_TASK_LIST_BEHAVIOR_CODE}".`));
+          return;
+        }
+
+        resolve(id);
+      };
+
+      const rbGetPicklist = (window as any)._RB?.getPicklist;
+      if (typeof rbGetPicklist === 'function') {
+        Promise.resolve(rbGetPicklist(PLAN_TYPE_OBJECT, PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD)).then(resolveFromPicklist, reject);
+        return;
+      }
+
+      const rbfGetPicklist = (window as any).rbf_getPicklist;
+      if (typeof rbfGetPicklist !== 'function') {
+        reject(new Error(`Unable to load picklist options for ${PLAN_TYPE_OBJECT}.${PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD}.`));
+        return;
+      }
+
+      try {
+        rbfGetPicklist(PLAN_TYPE_OBJECT, PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD, 0, resolveFromPicklist);
+      } catch (error) {
+        reject(error);
+      }
+    }).catch((error) => {
+      defaultTaskListBehaviorIdPromise = null;
+      throw error;
+    });
+  }
+
+  return defaultTaskListBehaviorIdPromise;
+}
+
+export function hasPlanTypeTaskListBehavior(planType: Pick<PlanType, 'taskListBehavior' | 'taskListBehaviorCode'>) {
+  return !isBlankValue(planType.taskListBehavior) || !isBlankValue(planType.taskListBehaviorCode);
+}
+
+export async function updatePlanTypeTemplateCategory(planType: PlanType, csv: string, defaultTaskListBehaviorId?: string | number | null) {
+  const fields: Record<string, string | number> = {
+    [PLAN_TYPE_TEMPLATE_CATEGORY_FIELD]: csv,
+  };
+
+  if (!hasPlanTypeTaskListBehavior(planType)) {
+    const taskListBehaviorId = isBlankValue(defaultTaskListBehaviorId) ? await getAttachAutomaticallyTaskListBehaviorId() : defaultTaskListBehaviorId;
+
+    if (isBlankValue(taskListBehaviorId)) {
+      throw new Error(`Unable to update ${planType.name}. ${PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD} is blank and no default option id was found.`);
+    }
+
+    fields[PLAN_TYPE_TASK_LIST_BEHAVIOR_FIELD] = taskListBehaviorId;
+  }
+
   return new Promise((resolve, reject) => {
     try {
-      // @ts-expect-error rbf_updateRecord is global
-      rbf_updateRecord(
-        'EA_SA_PlanType',
-        planTypeId,
-        {
-          bcicTemplateCategory: csv,
-        },
-        true,
-        (data: any) => resolve(data)
-      );
+      const rbfUpdateRecord = (window as any).rbf_updateRecord;
+
+      if (typeof rbfUpdateRecord !== 'function') {
+        throw new Error('rbf_updateRecord is not available.');
+      }
+
+      rbfUpdateRecord(PLAN_TYPE_OBJECT, planType.id, fields, true, (data: any) => resolve(data));
       return;
     } catch (_error) {
       try {
-        Promise.resolve(
-          // @ts-expect-error _RB is attached to window
-          _RB.updateRecord('EA_SA_PlanType', planTypeId, {
-            bcicTemplateCategory: csv,
-          })
-        ).then(resolve, reject);
+        const rbUpdateRecord = (window as any)._RB?.updateRecord;
+
+        if (typeof rbUpdateRecord !== 'function') {
+          throw _error;
+        }
+
+        Promise.resolve(rbUpdateRecord(PLAN_TYPE_OBJECT, planType.id, fields, true)).then(resolve, reject);
       } catch (fallbackError) {
         reject(fallbackError);
       }

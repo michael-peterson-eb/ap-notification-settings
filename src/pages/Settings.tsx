@@ -16,7 +16,15 @@ import { PlanTypeAssignedTemplatesCell } from './settings/PlanTypeAssignedTempla
 import { SettingsModal } from './settings/SettingsModal';
 import type { CommTemplate, FormState, PlanType } from './settings/types';
 import { usePlanTypes } from './settings/usePlanTypes';
-import { getErrorMessage, getPlanTargetLabel, getTemplateLabel, hasStoredCredentials, updatePlanTypeTemplateCategory } from './settings/utils';
+import {
+  getAttachAutomaticallyTaskListBehaviorId,
+  getErrorMessage,
+  getPlanTargetLabel,
+  getTemplateLabel,
+  hasPlanTypeTaskListBehavior,
+  hasStoredCredentials,
+  updatePlanTypeTemplateCategory,
+} from './settings/utils';
 
 type PlanTemplateMutationArgs = {
   targets: PlanType[];
@@ -155,8 +163,10 @@ export default function Settings() {
 
   const planTemplateMutation = useMutation({
     mutationFn: async ({ targets, csv }: PlanTemplateMutationArgs) => {
+      const defaultTaskListBehaviorId = targets.some((target) => !hasPlanTypeTaskListBehavior(target)) ? await getAttachAutomaticallyTaskListBehaviorId() : null;
+
       for (const target of targets) {
-        await updatePlanTypeTemplateCategory(target.id, csv);
+        await updatePlanTypeTemplateCategory(target, csv, defaultTaskListBehaviorId);
       }
     },
     onMutate: async ({ targets, csv }) => {
@@ -187,7 +197,10 @@ export default function Settings() {
       });
     },
     onSettled: async (_data, _error, variables) => {
-      await Promise.all(variables.targets.map((target) => queryClient.invalidateQueries({ queryKey: ['planTemplateCategory', target.id] })));
+      await Promise.all([
+        ...variables.targets.map((target) => queryClient.invalidateQueries({ queryKey: ['planTemplateCategory', target.id] })),
+        queryClient.invalidateQueries({ queryKey: ['planTypes'] }),
+      ]);
     },
   });
 
