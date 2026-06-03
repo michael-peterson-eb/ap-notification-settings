@@ -13,8 +13,12 @@ type ScopedMount = {
   styleTarget: ShadowRoot | null;
 };
 
+function getHostContainer(): HTMLElement | null {
+  return document.getElementById(ROOT_ID);
+}
+
 function ensureHostContainer(): HTMLElement {
-  const existing = document.getElementById(ROOT_ID);
+  const existing = getHostContainer();
   if (existing) return existing;
 
   const el = document.createElement('div');
@@ -23,9 +27,7 @@ function ensureHostContainer(): HTMLElement {
   return el;
 }
 
-function ensureReactMountNode(): ScopedMount {
-  const host = ensureHostContainer();
-
+function ensureReactMountNode(host: HTMLElement): ScopedMount {
   if (isDev) {
     return {
       mountNode: host,
@@ -57,8 +59,8 @@ function ensureReactMountNode(): ScopedMount {
   };
 }
 
-export function mountNotificationsApp() {
-  const { mountNode, portalNode, styleTarget } = ensureReactMountNode();
+export function mountNotificationsApp(host = ensureHostContainer()) {
+  const { mountNode, portalNode, styleTarget } = ensureReactMountNode(host);
 
   setPortalContainer(portalNode);
 
@@ -72,4 +74,27 @@ export function mountNotificationsApp() {
   return () => root.unmount();
 }
 
-mountNotificationsApp();
+let mountedHost: HTMLElement | null = null;
+let unmountNotificationsApp: (() => void) | null = null;
+
+function mountCurrentNotificationsHost() {
+  if (mountedHost && !mountedHost.isConnected) {
+    unmountNotificationsApp?.();
+    mountedHost = null;
+    unmountNotificationsApp = null;
+  }
+
+  const host = getHostContainer() ?? (isDev ? ensureHostContainer() : null);
+  if (!host || host === mountedHost) return;
+
+  unmountNotificationsApp?.();
+  mountedHost = host;
+  unmountNotificationsApp = mountNotificationsApp(host);
+}
+
+mountCurrentNotificationsHost();
+
+if (!isDev) {
+  const observer = new MutationObserver(mountCurrentNotificationsHost);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+}
