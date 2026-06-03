@@ -9,6 +9,8 @@ export type FormState = {
 export type PlanType = {
   id: number;
   name: string;
+  taskListBehavior: string | null;
+  taskListBehaviorCode: string | null;
 };
 
 export type CommTemplate = {
@@ -16,4 +18,3 @@ export type CommTemplate = {
   name?: string;
   title?: string;
 };
-
